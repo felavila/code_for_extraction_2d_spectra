@@ -62,11 +62,13 @@ def paralel_fit(image,num_source,pixel_limit=None,n_cpu=None,wavelenght=[],mask_
         n_cpu = cpu_count()
     if "distribution" not in kwargs.keys():
         kwargs["distribution"]= "gaussian"
-    pixel_limit = [0,image.shape[1]]
     image_copy = deepcopy(image)
     mask =None
     if isinstance(pixel_limit,list) and len(pixel_limit)==2:
+        print(pixel_limit)
         pixel_limit = [pixel_limit[0],pixel_limit[1]]
+    else:
+        pixel_limit = [0,image.shape[1]]
     if isinstance(mask_list,list) and len(mask_list) ==2:
         mask = np.ones_like(image, dtype=bool)
         mask[:, int(mask_list[0]):int(mask_list[1])] = False  # Mask the first 1000 rows
@@ -76,11 +78,12 @@ def paralel_fit(image,num_source,pixel_limit=None,n_cpu=None,wavelenght=[],mask_
     normalize_matrix = image_copy.T.max(axis=0)
     x_num = len(image_copy.T)
     normalized_image =  np.nan_to_num(image_copy.T/normalize_matrix,0)
+    print(normalized_image.shape)
     global process_pixel
     def process_pixel(args):
         n_pixel, pixel = args
         #if i want to add a parameter for the stats part of the matrix always should be and the left of it
-        if np.all(pixel) == 0:
+        if np.all(pixel== 0):
             return list([np.nan]*parameter_number*num_source)+[1e15]*parameter_number*num_source+ list([np.nan]*parameter_number*num_source)+[1e15,1e15,1e15,1e15,1e15,n_pixel,x_num] 
         fiting =  make_fit(pixel, num_source=num_source,**kwargs)
         if np.all(fiting.covar) == None:
