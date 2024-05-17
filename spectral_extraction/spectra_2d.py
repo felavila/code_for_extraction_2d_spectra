@@ -19,6 +19,9 @@ class spectra_2d:
                 print("Fits image has a len bigger than 1 be aware of in what layer is the image")
             self.header = self.fits_image[0].header
             self.full_data2d = self.fits_image[0].data
+            if len(self.fits_image[0].data.shape)==3:
+                 self.full_data2d = self.fits_image[0].data[0]
+                 self.full_data2d = np.nan_to_num(self.full_data2d,0)
         # along the code in 2D array we will asume a [0] axis for spacial, and [1] for dispersion axis 
         
         if self.full_data2d.shape[1] < self.full_data2d.shape[0]:
@@ -35,6 +38,7 @@ class spectra_2d:
         self.stacked_median = np.nanmedian(self.data2d,axis=1)
         if isinstance(self.header,astropy.io.fits.header.Header):
             self.relevant_keywords_header = {i:self.header[i] for i in ["ORIGIN","INSTRUME","OBJECT","NAXIS1","CRVAL1","CD1_1","CUNIT1"] if i in list(self.header.keys()) }
+    
     @staticmethod
     def cut_2d_image(image,center=None,size=None,verbose=False):
         if center==None:

@@ -86,7 +86,7 @@ def paralel_fit(image,num_source,pixel_limit=None,n_cpu=None,wavelenght=[],mask_
         if np.all(fiting.covar) == None:
             return list([np.nan]*parameter_number*num_source)+[1e15]*parameter_number*num_source+ list(fiting.values.keys())+[1e15,1e15,1e15,1e15,1e15,n_pixel,x_num] 
         return list(np.array([[value.value,value.stderr] for key,value in fiting.params.items()]).T.reshape(parameter_number*num_source*2,))+ list(fiting.values.keys()) + [fiting.chisqr,fiting.redchi,fiting.aic,fiting.bic,fiting.rsquared,n_pixel,x_num] 
-    print(f"The code will be executed in {n_cpu} core using {num_source} sources an a {kwargs["distribution"]} distribution")
+    print(f"The code will be executed in {n_cpu} core using {num_source} sources an a {kwargs['distribution']} distribution")
     args = [(n_pixel, pixel) for n_pixel, pixel in zip(np.arange(*pixel_limit) ,normalized_image.T)]
     normalize_matrix = normalize_matrix[:,np.newaxis]
     full_fit = np.array(progress_map(process_pixel, args, process_timeout=20, n_cpu=n_cpu,need_serialize=False))
