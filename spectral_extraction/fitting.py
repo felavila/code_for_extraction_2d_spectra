@@ -68,9 +68,10 @@ def paralel_fit(image,num_source,pixel_limit=None,n_cpu=None,wavelenght=[],mask_
         pixel_limit = [pixel_limit[0],pixel_limit[1]]
     else:
         pixel_limit = [0,image.shape[1]]
-    if isinstance(mask_list,list) and len(mask_list) ==2:
+    if isinstance(mask_list,list):
         mask = np.ones_like(image, dtype=bool)
-        mask[:, int(mask_list[0]):int(mask_list[1])] = False  # Mask the first 1000 rows
+        for i in mask_list:
+            mask[:,range(*i)] = False
         image_copy = deepcopy(image_copy*mask)
     parameter_number = 3 if kwargs["distribution"]=="gaussian" else 4
     image_copy = deepcopy(image_copy.T[np.arange(*pixel_limit)])

@@ -57,7 +57,7 @@ def create_multigaussian_model(num_image, ydata, initial_separation=None,initial
         
         params.add(f'height_{i+1}', value=height/(i+1), min=0)#np.min(ydata)  # Set the heights of the subsequent Gaussians to be decreasing
 
-        params.add(f'sigma_{i+1}', value=sigma,min=0)
+        params.add(f'sigma_{i+1}', value=sigma,min=0,max=10)
     return model, params,xdata
 
 

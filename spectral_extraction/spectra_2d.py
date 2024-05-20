@@ -1,5 +1,6 @@
 import astropy
 from astropy.io import fits
+import matplotlib.pyplot as plt
 import numpy as np
 from .utils import find_signal
 
@@ -44,7 +45,33 @@ class spectra_2d:
         if center==None:
             center = int(np.nanmedian(np.array([find_signal(i) for i in image.T])))
         if size==None:
-            size = 100 # should be fine as initial value
+            size = 70 # should be fine as initial value
         if verbose:
             print(f"cut center {center} and cut size {size}")
         return image[int(center-size//2):int(center+size//2),:]
+    
+    def plot_cut_out(self):
+        norm_image = self.data2d/self.data2d.max(axis=0)
+        fig,axs = plt.subplots(1, 2, figsize=(18, 5))
+        # Plot data on the first subplot
+        im = axs[0].imshow(norm_image,aspect="auto",vmin=0,vmax=1)
+        axs[0].set_title('2d cut')
+        axs[0].set_xlabel('X-pixel')
+        axs[0].set_ylabel('Y-pixel')
+        
+        plt.colorbar(im, ax=axs[0], label="normalized intensity")
+        #axs[0].legend()
+
+        # Plot data on the second subplot
+        axs[1].plot(np.nanmedian(norm_image,axis=1), color='orange')
+        axs[1].set_title('stacked median')
+        axs[1].set_xlabel('intensity')
+        axs[1].set_ylabel('y-pixels')
+        #axs[1].invert_xaxis()
+        #axs[1].legend()
+
+        # Adjust layout
+        plt.tight_layout()
+
+        # Show the plot
+        plt.show()

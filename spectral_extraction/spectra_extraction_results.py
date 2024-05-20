@@ -132,6 +132,7 @@ class spectral_extraction_results_handler:
             print("not wavelength in the class")
             wavelength = np.arange(len(self.clean_pandas))
             xlabel="pixel"
+        plt.figure(figsize=(20,10))
         [plt.plot(wavelength,flux,label=key) for key,flux in self.spectras1d.items()]
         plt.xlabel(xlabel)
         plt.ylabel("flux")
