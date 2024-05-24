@@ -7,6 +7,8 @@ import pandas as pd
 import itertools
 from scipy.interpolate import interp1d
 import astropy.io
+from astropy.stats import sigma_clip
+
 class spectral_extraction_results_handler:
     def __init__(self,spectral_extraction_results,conditions={"rsquared":0.7},header=None):
         self.spectral_extraction_results = spectral_extraction_results
@@ -28,7 +30,7 @@ class spectral_extraction_results_handler:
                 to_angs = 1
                 if "CUNIT1" in self.relevant_keywords_header.keys():
                     if self.relevant_keywords_header["CUNIT1"]=="nm":
-                        to_angs=1000
+                        to_angs=10
                 self.wavelength =  np.array([(self.relevant_keywords_header["CRVAL1"]+i*self.relevant_keywords_header["CD1_1"])*to_angs for i in self.cleaned_panda["n_pixel"].values])
                 self.cleaned_panda["wavelength"] = self.wavelength
     def array_to_pandas(self):
@@ -64,6 +66,8 @@ class spectral_extraction_results_handler:
         return sumary_results.loc[:,~sumary_results.columns.duplicated()].copy(),image_2d_model#values,std,fluxes,stats,pre_v
     @staticmethod
     def interpolate_1d(flux):
+        clip_,lower,upper = sigma_clip(flux,sigma=10, cenfunc='median', return_bounds=True)
+        flux[flux>upper] = np.nan
         if np.isnan(flux[0]):
             flux[0] = np.nanmedian(flux)
         if np.isnan(flux[-1]):
