@@ -33,6 +33,8 @@ class spectral_extraction_results_handler:
                         to_angs=10
                 self.wavelength =  np.array([(self.relevant_keywords_header["CRVAL1"]+i*self.relevant_keywords_header["CD1_1"])*to_angs for i in self.cleaned_panda["n_pixel"].values])
                 self.cleaned_panda["wavelength"] = self.wavelength
+        else:
+            print("your results will not have wavelength try to define a header")
     def array_to_pandas(self):
         ###########:
         separation_as_parameter = False
