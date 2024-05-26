@@ -1,2 +1,4 @@
-# code_for_extraction_2d_spectra
-"LITTLE CODE TO EXTRACT MULTIPLE 1D ESPECTRA FROM ONE 2D"
+# spectral_extraction
+    "LITTLE CODE TO EXTRACT MULTIPLE 1D ESPECTRA FROM ONE 2D"
+## Installation
+    "python setup.py install"
