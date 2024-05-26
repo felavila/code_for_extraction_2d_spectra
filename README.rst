@@ -1,9 +1,14 @@
 Spectral_extraction
-------------
+====================
 
-    LITTLE CODE TO EXTRACT MULTIPLE 1D ESPECTRA FROM ONE 2D
+Little Code to Extract Multiple 1D Spectra from One 2D
+-------------------------------------------------------
 
 Installation
 ------------
 
-    .. python setup.py install
+To install, run the following command in your terminal:
+
+.. code-block:: bash
+
+    python setup.py install
