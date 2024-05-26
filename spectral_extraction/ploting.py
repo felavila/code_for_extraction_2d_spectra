@@ -4,6 +4,22 @@ import matplotlib.pyplot as plt
 
 
 def plot2d_spectra(image,region=None):
+    """
+    Plots a 2D spectra image with optional region highlighting.
+
+    Parameters:
+    ----------
+    image : array-like
+        The 2D spectra image data to be plotted.
+        
+    region : float or None, optional, default=None
+        A float value representing the region to highlight, as a fraction of the image height. 
+        If provided, a horizontal line and shaded area will be added to the plot.
+
+    Returns:
+    -------
+    None
+    """
     image_to_plot = np.nan_to_num((image/image.max(axis=0)),0)
     size = image_to_plot.shape
     fig, ax = plt.subplots(figsize=(20, 9), dpi=80)

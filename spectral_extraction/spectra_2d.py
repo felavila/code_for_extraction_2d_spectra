@@ -6,8 +6,27 @@ from .utils import find_signal
 
 
 class spectra_2d:
-    "little class to handle with 2d image of spectra"
+    "Little class to handle 2D image of spectra"
+    
     def __init__(self,object,center_cut = None,size_cut=None,verbose=False):
+        """
+        Initialize the spectra_2d class.
+
+        Parameters:
+        ----------
+        object : str or array-like
+            The input data for the spectra. If a string ending with 'fits', it is treated as a filepath to a FITS file.
+            
+        center_cut : int or None, optional, default=None
+            The center position for cutting the 2D image. If None, the center will be estimated.
+            
+        size_cut : int or None, optional, default=None
+            The size of the cut-out region. If None, a default size of 70 will be used.
+            
+        verbose : bool, optional, default=False
+            If True, print additional information during processing.
+        """
+        
         self.center_cut = center_cut
         self.size_cut = size_cut
         self.verbose = verbose
@@ -42,6 +61,29 @@ class spectra_2d:
     
     @staticmethod
     def cut_2d_image(image,center=None,size=None,verbose=False):
+        """
+        Cut a 2D image to the specified region.
+
+        Parameters:
+        ----------
+        image : array-like
+            The input 2D image to be cut.
+            
+        center : int or None, optional, default=None
+            The center position for cutting the 2D image. If None, the center will be estimated.
+            
+        size : int or None, optional, default=None
+            The size of the cut-out region. If None, a default size of 70 will be used.
+            
+        verbose : bool, optional, default=False
+            If True, print additional information during processing.
+
+        Returns:
+        -------
+        array-like
+            The cut-out 2D image.
+        """
+        
         if center==None:
             center = int(np.nanmedian(np.array([find_signal(i) for i in image.T])))
         if size==None:
