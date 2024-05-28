@@ -201,7 +201,7 @@ class spectral_extraction_results_handler:
             wavelength = np.arange(len(self.clean_pandas))
             xlabel="pixel"
         plt.figure(figsize=(20,10))
-        [plt.plot(wavelength,flux,label=key) for key,flux in self.spectras1d.items()]
+        [plt.plot(wavelength,flux,label=key,linewidth=0.5) for key,flux in self.spectras1d.items()]
         plt.xlabel(xlabel)
         plt.ylabel("flux")
         plt.legend()
