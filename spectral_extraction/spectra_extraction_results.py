@@ -50,6 +50,7 @@ class spectral_extraction_results_handler:
                 self.cleaned_panda["wavelength"] = self.wavelength
         else:
             print("your results will not have wavelength try to define a header")
+    
     def array_to_pandas(self):
         """
         Convert array results to pandas DataFrame.
@@ -90,51 +91,6 @@ class spectral_extraction_results_handler:
         return sumary_results.loc[:,~sumary_results.columns.duplicated()].copy(),image_2d_model#values,std,fluxes,stats,pre_v
     @staticmethod
     def interpolate_1d(flux):
-        clip_,lower,upper = sigma_clip(flux,sigma=10, cenfunc='median', return_bounds=True)
-        flux[flux>upper] = np.nan
-        if np.isnan(flux[0]):
-            flux[0] = np.nanmedian(flux)
-        if np.isnan(flux[-1]):
-            flux[-1] = np.nanmedian(flux)
-        x = np.arange(len(flux))
-        mask_nan = np.isnan(flux)
-        flux_1_no_nan = flux[~mask_nan]
-        x_non_nan = x[~mask_nan]
-        function_to_interpolate = interp1d(x_non_nan, flux_1_no_nan, kind='linear')
-        return function_to_interpolate(x)
-    @staticmethod
-    def clean_pandas(pandas_no_clean,conditions={"min":{"rsquared":0.7}}):
-        for super_key,super_values in conditions.items():
-            if super_key=="min":
-                for key,values in super_values.items():
-                    indices = pandas_no_clean.index[pandas_no_clean[key] < values]
-                    flux_columns = [col for col in pandas_no_clean.columns if "flux" in col]
-                    pandas_no_clean.loc[indices, flux_columns] = np.nan
-            elif super_key=="max":
-                for key,values in super_values.items():
-                    indices = pandas_no_clean.index[pandas_no_clean[key] > values]
-                    flux_columns = [col for col in pandas_no_clean.columns if "flux" in col]
-                    pandas_no_clean.loc[indices, flux_columns] = np.nan      
-        return pandas_no_clean
-    
-    def plot_2d_image_residuals(self,save=None):
-        """
-        Convert array results to pandas DataFrame.
-
-        Returns:
-        -------
-        tuple
-            A tuple containing the pandas DataFrame of results and the 2D model image.
-        """
-        model_result = {"original_image":self.image/self.image.max(axis=0),"model_image":self.image_model/self.image_model.max(axis=0),"residuals (abs(original-model))":self.residuals/self.residuals.max(axis=0)}
-        fig, axes = plt.subplots(1,3, figsize=(30, 5))
-        for ax, (key, spectra2d) in zip(axes, model_result.items()):
-            vmin,vmax,label=0,1,"normalize"
-            ax.set_title(key)
-            im = ax.imshow(spectra2d,aspect="auto",vmin=0,vmax=1)
-            fig.colorbar(im, ax=ax, shrink=1,label=label)
-        plt.show()
-    def plot_1d(self,n_pixel,save=None):
         """
         Interpolate 1D flux data.
 
@@ -152,18 +108,20 @@ class spectral_extraction_results_handler:
             This require more analize given the posibility of what happend when we are working with a cuted 2d image,add table with parameters
         
         """
-        parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in range(1,self.source_number+1) for c in  self.columns_distribtuion]]
-        pixel_1d =self.image.T[n_pixel]
-        x = np.linspace(0,len(pixel_1d),100)
-        plt.plot(self.image.T[n_pixel],label="raw data")
-        separated_sources = np.array([self.distribution_function(x,*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)])
-        plt.plot(x,np.sum(separated_sources,axis=0),color="k",label="added models")
-        [plt.plot(x ,i, linestyle="--", linewidth=1.5,label=f"source {n+1}") for n,i in  enumerate(separated_sources)]
-        plt.plot(np.arange(len(pixel_1d)),pixel_1d-np.sum(np.array([self.distribution_function(np.arange(len(pixel_1d)),*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)]),axis=0),label="residuals",alpha=0.5)
-        plt.title(f"pixel {n_pixel}")
-        plt.legend()
-        plt.show()
-    def plot_column(self,column_name):
+        clip_,lower,upper = sigma_clip(flux,sigma=10, cenfunc='median', return_bounds=True)
+        flux[flux>upper] = np.nan
+        if np.isnan(flux[0]):
+            flux[0] = np.nanmedian(flux)
+        if np.isnan(flux[-1]):
+            flux[-1] = np.nanmedian(flux)
+        x = np.arange(len(flux))
+        mask_nan = np.isnan(flux)
+        flux_1_no_nan = flux[~mask_nan]
+        x_non_nan = x[~mask_nan]
+        function_to_interpolate = interp1d(x_non_nan, flux_1_no_nan, kind='linear')
+        return function_to_interpolate(x)
+    @staticmethod
+    def clean_pandas(pandas_no_clean,conditions={"min":{"rsquared":0.7}}):
         """
         Clean pandas DataFrame based on conditions.
 
@@ -183,6 +141,45 @@ class spectral_extraction_results_handler:
         ------ 
             Here will be a good idea add the posibility of decide over what "pandas" plot the column so is more clear where could be the problem 
         """
+      
+        for super_key,super_values in conditions.items():
+            if super_key=="min":
+                for key,values in super_values.items():
+                    indices = pandas_no_clean.index[pandas_no_clean[key] < values]
+                    flux_columns = [col for col in pandas_no_clean.columns if "flux" in col]
+                    pandas_no_clean.loc[indices, flux_columns] = np.nan
+            elif super_key=="max":
+                for key,values in super_values.items():
+                    indices = pandas_no_clean.index[pandas_no_clean[key] > values]
+                    flux_columns = [col for col in pandas_no_clean.columns if "flux" in col]
+                    pandas_no_clean.loc[indices, flux_columns] = np.nan      
+        return pandas_no_clean
+    
+    def plot_2d_image_residuals(self,save=None):
+       
+        model_result = {"original_image":self.image/self.image.max(axis=0),"model_image":self.image_model/self.image_model.max(axis=0),"residuals (abs(original-model))":self.residuals/self.residuals.max(axis=0)}
+        fig, axes = plt.subplots(1,3, figsize=(30, 5))
+        for ax, (key, spectra2d) in zip(axes, model_result.items()):
+            vmin,vmax,label=0,1,"normalize"
+            ax.set_title(key)
+            im = ax.imshow(spectra2d,aspect="auto",vmin=0,vmax=1)
+            fig.colorbar(im, ax=ax, shrink=1,label=label)
+        plt.show()
+    def plot_1d(self,n_pixel,save=None):
+        
+        parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in range(1,self.source_number+1) for c in  self.columns_distribtuion]]
+        pixel_1d =self.image.T[n_pixel]
+        x = np.linspace(0,len(pixel_1d),100)
+        plt.plot(self.image.T[n_pixel],label="raw data")
+        separated_sources = np.array([self.distribution_function(x,*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)])
+        plt.plot(x,np.sum(separated_sources,axis=0),color="k",label="added models")
+        [plt.plot(x ,i, linestyle="--", linewidth=1.5,label=f"source {n+1}") for n,i in  enumerate(separated_sources)]
+        plt.plot(np.arange(len(pixel_1d)),pixel_1d-np.sum(np.array([self.distribution_function(np.arange(len(pixel_1d)),*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)]),axis=0),label="residuals",alpha=0.5)
+        plt.title(f"pixel {n_pixel}")
+        plt.legend()
+        plt.show()
+    def plot_column(self,column_name):
+       
         
         try:
             column = self.cleaned_panda[column_name].values
