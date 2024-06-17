@@ -11,6 +11,21 @@ from astropy.stats import sigma_clip
 
 class spectral_extraction_results_handler:
     def __init__(self,spectral_extraction_results,conditions={"rsquared":0.7},header=None):
+        """
+        Initialize the spectral_extraction_results_handler class.
+
+        Parameters:
+        ----------
+        spectral_extraction_results : dict
+            Dictionary containing results from the spectral extraction process.
+        
+        conditions : dict, optional, default={"rsquared": 0.7}
+            Conditions for cleaning the pandas DataFrame. The default condition is to have rsquared >= 0.7.
+        
+        header : FITS header or None, optional
+            Header information, typically from a FITS file.
+        """
+        
         self.spectral_extraction_results = spectral_extraction_results
         self.conditions = conditions
         self.image,self.full_fit,self.normalization_array,self.source_number,self.distribution,self.mask,self.original_image = list(self.spectral_extraction_results.values())
@@ -35,8 +50,16 @@ class spectral_extraction_results_handler:
                 self.cleaned_panda["wavelength"] = self.wavelength
         else:
             print("your results will not have wavelength try to define a header")
+    
     def array_to_pandas(self):
-        ###########:
+        """
+        Convert array results to pandas DataFrame.
+
+        Returns:
+        -------
+        tuple
+            A tuple containing the pandas DataFrame of results and the 2D model image.
+        """
         separation_as_parameter = False
         columns_model = [i for i in np.unique(deepcopy(self.full_fit[:,2*self.parameter_number*self.source_number:3*(self.parameter_number*self.source_number)]),axis=0) if "nan" not in i][0]
         columns_flux =[f"flux_{n}" for n in range(1,self.source_number+1)]
@@ -68,6 +91,23 @@ class spectral_extraction_results_handler:
         return sumary_results.loc[:,~sumary_results.columns.duplicated()].copy(),image_2d_model#values,std,fluxes,stats,pre_v
     @staticmethod
     def interpolate_1d(flux):
+        """
+        Interpolate 1D flux data.
+
+        Parameters:
+        ----------
+        flux : array-like
+            1D array of flux values to be interpolated.
+
+        Returns:
+        -------
+        array-like
+            Interpolated 1D flux data.
+        Notes:
+        ------ 
+            This require more analize given the posibility of what happend when we are working with a cuted 2d image,add table with parameters
+        
+        """
         clip_,lower,upper = sigma_clip(flux,sigma=10, cenfunc='median', return_bounds=True)
         flux[flux>upper] = np.nan
         if np.isnan(flux[0]):
@@ -82,6 +122,26 @@ class spectral_extraction_results_handler:
         return function_to_interpolate(x)
     @staticmethod
     def clean_pandas(pandas_no_clean,conditions={"min":{"rsquared":0.7}}):
+        """
+        Clean pandas DataFrame based on conditions.
+
+        Parameters:
+        ----------
+        pandas_no_clean : DataFrame
+            The pandas DataFrame to be cleaned.
+        
+        conditions : dict, optional, default={"min": {"rsquared": 0.7}}
+            Conditions for cleaning the DataFrame. The default condition is to have rsquared >= 0.7.
+
+        Returns:
+        -------
+        DataFrame
+            Cleaned pandas DataFrame.
+        Notes:
+        ------ 
+            Here will be a good idea add the posibility of decide over what "pandas" plot the column so is more clear where could be the problem 
+        """
+      
         for super_key,super_values in conditions.items():
             if super_key=="min":
                 for key,values in super_values.items():
@@ -96,7 +156,7 @@ class spectral_extraction_results_handler:
         return pandas_no_clean
     
     def plot_2d_image_residuals(self,save=None):
-        #/Image2d.data2d.max(axis=0),
+       
         model_result = {"original_image":self.image/self.image.max(axis=0),"model_image":self.image_model/self.image_model.max(axis=0),"residuals (abs(original-model))":self.residuals/self.residuals.max(axis=0)}
         fig, axes = plt.subplots(1,3, figsize=(30, 5))
         for ax, (key, spectra2d) in zip(axes, model_result.items()):
@@ -106,7 +166,7 @@ class spectral_extraction_results_handler:
             fig.colorbar(im, ax=ax, shrink=1,label=label)
         plt.show()
     def plot_1d(self,n_pixel,save=None):
-        """"This require more analize given the posibility of what happend when we are working with a cuted 2d image,add table with parameters"""
+        
         parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in range(1,self.source_number+1) for c in  self.columns_distribtuion]]
         pixel_1d =self.image.T[n_pixel]
         x = np.linspace(0,len(pixel_1d),100)
@@ -119,6 +179,8 @@ class spectral_extraction_results_handler:
         plt.legend()
         plt.show()
     def plot_column(self,column_name):
+       
+        
         try:
             column = self.cleaned_panda[column_name].values
             print(f"mean value for {column_name} if {np.nanmedian(column)}")
@@ -139,7 +201,7 @@ class spectral_extraction_results_handler:
             wavelength = np.arange(len(self.clean_pandas))
             xlabel="pixel"
         plt.figure(figsize=(20,10))
-        [plt.plot(wavelength,flux,label=key) for key,flux in self.spectras1d.items()]
+        [plt.plot(wavelength,flux,label=key,linewidth=0.5) for key,flux in self.spectras1d.items()]
         plt.xlabel(xlabel)
         plt.ylabel("flux")
         plt.legend()

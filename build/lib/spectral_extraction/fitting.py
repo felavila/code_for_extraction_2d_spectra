@@ -7,19 +7,63 @@ from parallelbar.tools import cpu_bench, fibonacci
 import numpy as np
 from copy import deepcopy
 
-def make_fit(ydata,num_source=2,initial_center=None,initial_separation=None
+def make_fit(ydata:np.array,num_source=2,initial_center=None,initial_separation=None
                  ,bound_sigma=None,fix_sep=None,fix_height=None,custom_expr=None
                  ,weights=None,param_limit=None,param_fix=None,param_value=None,verbose=False,\
                 distribution="gaussian"):
-    """ydata:1d array
-    num_source: set two 2 because is the most usual case
-    initial_center: float value to set the center of the fit
-    initial_separatio: list like fulled with posite or negative values depending of the separation with the center
-    bound_sigma: list fulled with the number of components of the fit that wants to be bounded to the central PSF
-    fix_sep: list defined to fix the values in initial_sep
-    distribution: str distribution to perform a fit only available gaussian or moffat
-    custom_expr: custom expr. lmfit like avalaible just read this https://lmfit.github.io/lmfit-py/index.html to get how to add expr."""
+    """
+    Fits a model to the provided data.
+
+    Parameters:
+    ----------
+    ydata : array-like
+        The dependent data (observations or measurements) to be fitted by the model.
+        
+    num_source : int, optional, default=2
+        Specifies the number of sources (or components) to include in the fitting model.
+        
+    initial_center : float or int or None, optional, default=None
+        Initial estimates for the center (mean or peak position) of each source/component.
+        
+    initial_separation : list or None, optional, default=None
+        Initial guess for the separation between the sources/components.
+        
+    bound_sigma : array-like or None, optional, default=None
+        Bounds or constraints on the sigma (standard deviation) starting from second component.
+        
+    fix_sep : bool or None, optional, default=None
+        Whether to fix the separation between sources/components (True/False).
+        
+    fix_height : bool or None, optional, default=None
+        Whether to fix the height (amplitude) of the sources/components (True/False).
+        
+    custom_expr : str or None, optional, default=None
+        Custom expression for the fitting function, allowing for user-defined models https://lmfit.github.io/lmfit-py/index.html.
+        
+    weights : array-like or None, optional, default=None
+        Weights for each data point in ydata, useful for weighted fitting.
+        
+    param_limit : dict or None, optional, default=None
+        Limits on parameters (e.g., min and max values) as a dictionary.
+        
+    param_fix : dict or None, optional, default=None
+        Parameters to be fixed at specific values during fitting.
+        
+    param_value : dict or None, optional, default=None
+        Initial values for parameters, provided as a dictionary.
+        
+    verbose : bool, optional, default=False
+        If True, the function will print detailed information during execution.
+        
+    distribution : str, optional, default="gaussian"
+        The type of distribution to use for fitting. Common choices might be "gaussian", "moffat".
+
+    Returns:
+    -------
+    result : Fitting result
+        The result of the fitting process, typically including fitted parameters and possibly fit statistics.
     
+    """   
     if distribution=="moffat":
         model, params,xdata = create_multimoffat_model(num_source,ydata, initial_separation=initial_separation,initial_center=initial_center)
     elif distribution=="gaussian":
@@ -58,6 +102,50 @@ def make_fit(ydata,num_source=2,initial_center=None,initial_separation=None
 
 
 def paralel_fit(image,num_source,pixel_limit=None,n_cpu=None,wavelenght=[],mask_list=[],**kwargs):
+    """
+    Perform parallel fitting on an image using multiple sources.
+
+    Parameters:
+    ----------
+    image : 2D array-like
+        The image data to be fitted.
+        
+    num_source : int
+        Specifies the number of sources (or components) to include in the fitting model.
+        
+    pixel_limit : list or None, optional, default=None
+        Limit on the number of pixels to process. If None, process all pixels.
+        
+    n_cpu : int or None, optional, default=None
+        Number of CPU cores to use for parallel processing. If None, use all available cores.
+        
+    wavelength : Not available yet 
+        
+    mask_list : list, optional, default=[]
+        List of masks to apply to the image data, used to exclude certain regions from fitting.
+        
+    **kwargs : dict, optional
+        Additional keyword arguments to be passed to the make_fit function. These can include:
+        - initial_center
+        - initial_separation
+        - bound_sigma
+        - fix_sep
+        - fix_height
+        - custom_expr
+        - weights
+        - param_limit
+        - param_fix
+        - param_value
+        - verbose
+        - distribution
+
+    Returns:
+    -------
+    result : list
+        List of fitting results for each processed pixel or region.
+    
+    """
+    
     if n_cpu==None:
         n_cpu = cpu_count()
     if "distribution" not in kwargs.keys():

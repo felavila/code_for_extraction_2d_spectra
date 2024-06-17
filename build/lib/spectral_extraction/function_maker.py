@@ -3,9 +3,35 @@ import numpy as np
 
 
 def create_multigaussian_model(num_image, ydata, initial_separation=None,initial_center=None):
-    """""Recordar que cuando se ingresa una initial_separation, los parametetros del modelo seran
-    center1,separation2,sepation...., en cambio cuando no hay sep se denominan
-    center1,center2,center3"""
+    """
+    Creates a multi-Gaussian model for fitting purposes.
+
+    Parameters:
+    ----------
+    num_image : int
+        Number of images to be modeled.
+        
+    ydata : array-like
+        The dependent data (observations or measurements) to be modeled.
+        
+    initial_separation : list or None, optional, default=None
+        Initial guess for the separation between the Gaussian components. If provided, 
+        the parameters of the model will be named as center1, separation2, separation3, ..., etc.
+        
+    initial_center : float or None, optional, default=None
+        Initial estimates for the center (mean or peak position) of each Gaussian component. 
+        If initial_separation is not provided, the parameters of the model will be named as center1, center2, center3, ..., etc.
+
+    Returns:
+    -------
+    model : Model object
+        The constructed multi-Gaussian model with the specified initial parameters.
+    
+    Notes:
+    -----
+    - If `initial_separation` is provided, the model parameters will be named as `center1`, `separation2`, `separation3`, ..., etc.
+    - If `initial_separation` is not provided, the model parameters will be named as `center1`, `center2`, `center3`, ..., etc.
+    """
     # Start building the function definition as a string
     func_def = "def multigauss(x, "
     # Add the parameters to the function definition
@@ -62,9 +88,36 @@ def create_multigaussian_model(num_image, ydata, initial_separation=None,initial
 
 
 def create_multimoffat_model(num_image, ydata, initial_separation=None,initial_center=None):
-    """""Recordar que cuando se ingresa una initial_separation, los parametetros del modelo seran
-    center1,separation2,sepation...., en cambio cuando no hay initial_separation se denominan
-    center1,center2,center3"""
+    """
+    Creates a multi-Moffat model for fitting purposes.
+
+    Parameters:
+    ----------
+    num_image : int
+        Number of images to be modeled.
+        
+    ydata : array-like
+        The dependent data (observations or measurements) to be modeled.
+        
+    initial_separation : list or None, optional, default=None
+        Initial guess for the separation between the Moffat components. If provided, 
+        the parameters of the model will be named as center1, separation2, separation3, ..., etc.
+        
+    initial_center : float or None, optional, default=None
+        Initial estimates for the center (mean or peak position) of each Moffat component. 
+        If initial_separation is not provided, the parameters of the model will be named as center1, center2, center3, ..., etc.
+
+    Returns:
+    -------
+    model : Model object
+        The constructed multi-Moffat model with the specified initial parameters.
+    
+    Notes:
+    -----
+    - If `initial_separation` is provided, the model parameters will be named as `center1`, `separation2`, `separation3`, ..., etc.
+    - If `initial_separation` is not provided, the model parameters will be named as `center1`, `center2`, `center3`, ..., etc.
+    """
+    # Handling the parameter names based on initial_separation
     # Start building the function definition as a string
     func_def = "def multimoffat(x, "
     # Add the parameters to the function definition

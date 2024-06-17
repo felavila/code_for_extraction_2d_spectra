@@ -1,6 +1,7 @@
 LICENSE
-README.md
+README.rst
 setup.py
+dist/spectral_extraction-0.0.1.tar.gz
 notebooks/how_to_use_example_v0.ipynb
 notebooks/how_to_use_example_xshooter.ipynb
 notebooks/my_model_extraction.pickle

@@ -37,10 +37,10 @@ def create_multigaussian_model(num_image, ydata, initial_separation=None,initial
     # Add the parameters to the function definition
     params = []
     for i in range(num_image):
-        if i == 0 or not initial_separation:
+        if i == 0 or not np.any(initial_separation):
             params.append(f"center_{i+1}")
         params.append(f"height_{i+1}, sigma_{i+1}")
-        if initial_separation and i > 0:
+        if np.any(initial_separation) and i > 0:
             params.append(f"separation_{i+1}")
     func_def += ', '.join(params)
     # Add the function body
@@ -48,7 +48,7 @@ def create_multigaussian_model(num_image, ydata, initial_separation=None,initial
     for i in range(num_image):
         if i == 0:
             func_def += f"    y += height_{i+1} * np.exp(-(x - center_{i+1})**2 / (2 * sigma_{i+1}**2))\n"
-        elif initial_separation:
+        elif np.any(initial_separation):
             func_def += f"    y += height_{i+1} * np.exp(-(x - (center_1 + separation_{i+1}))**2 / (2 * sigma_{i+1}**2))\n"
         else:
             func_def += f"    y += height_{i+1} * np.exp(-(x - center_{i+1})**2 / (2 * sigma_{i+1}**2))\n"
@@ -68,16 +68,16 @@ def create_multigaussian_model(num_image, ydata, initial_separation=None,initial
     sigma = 2  # Std dev of x-data
     for i in range(num_image):
         if initial_center:
-            if i == 0 or not initial_separation:
+            if i == 0 or not np.any(initial_separation):
             #params.add(f'center{i+1}', value=centers[i], min=centers[i]-3, max=centers[i]+3)
                 params.add(f'center_{i+1}', value=centers[i], min=centers[i]-3, max=centers[i]+3)
-            if i > 0 and initial_separation:
+            if i > 0 and np.any(initial_separation):
                 #params.add(f'separation{i+1}', value=np.round(sep[i-1],3), min=sep[i-1]-2, max=sep[i-1]+2)
                 params.add(f'separation_{i+1}', value=np.round(initial_separation[i-1],3), min=initial_separation[i-1]-10, max=initial_separation[i-1]+10)
         else:
-            if i == 0 or not initial_separation:
+            if i == 0 or not np.any(initial_separation):
                 params.add(f'center_{i+1}', value=centers[i], min=np.min(xdata), max=np.max(xdata))
-            if i > 0 and initial_separation:
+            if i > 0 and np.any(initial_separation):
                 params.add(f'separation_{i+1}', value=np.round(initial_separation[i-1],3), min=initial_separation[i-1]-5, max=initial_separation[i-1]+5)
         
         
@@ -123,10 +123,10 @@ def create_multimoffat_model(num_image, ydata, initial_separation=None,initial_c
     # Add the parameters to the function definition
     params = []
     for i in range(num_image):
-        if i == 0 or not initial_separation:
+        if i == 0 or not np.any(initial_separation):
             params.append(f"center_{i+1}")
         params.append(f"height_{i+1}, sigma_{i+1},alpha_{i+1}")
-        if initial_separation and i > 0:
+        if np.any(initial_separation) and i > 0:
             params.append(f"separation_{i+1}")
     func_def += ', '.join(params)
     # Add the function body
@@ -134,7 +134,7 @@ def create_multimoffat_model(num_image, ydata, initial_separation=None,initial_c
     for i in range(num_image):
         if i == 0:
             func_def += f"    y += height_{i+1} * (1 + (x - center_{i+1})**2 / (sigma_{i+1}**2))**-alpha_{i+1}\n"
-        elif initial_separation:
+        elif np.any(initial_separation):
             func_def += f"    y += height_{i+1} * (1 + (x - (center_1 + separation_{i+1}))**2 / (sigma_{i+1}**2))**-alpha_{i+1}\n"
         else:
             func_def += f"    y += height_{i+1} * (1 + (x - center_{i+1})**2 / (sigma_{i+1}**2))**-alpha_{i+1}\n"
@@ -155,16 +155,16 @@ def create_multimoffat_model(num_image, ydata, initial_separation=None,initial_c
     alpha = 3
     for i in range(num_image):
         if initial_center:
-            if i == 0 or not initial_separation:
+            if i == 0 or not np.any(initial_separation):
             #params.add(f'center{i+1}', value=centers[i], min=centers[i]-3, max=centers[i]+3)
                 params.add(f'center_{i+1}', value=centers[i], min=centers[i]-3, max=centers[i]+3)
-            if i > 0 and initial_separation:
+            if i > 0 and np.any(initial_separation):
                 #params.add(f'separation{i+1}', value=np.round(sep[i-1],3), min=sep[i-1]-2, max=sep[i-1]+2)
                 params.add(f'separation_{i+1}', value=np.round(initial_separation[i-1],3), min=initial_separation[i-1]-10, max=initial_separation[i-1]+10)
         else:
-            if i == 0 or not initial_separation:
+            if i == 0 or not np.any(initial_separation):
                 params.add(f'center_{i+1}', value=centers[i], min=np.min(xdata), max=np.max(xdata))
-            if i > 0 and initial_separation:
+            if i > 0 and np.any(initial_separation):
                 params.add(f'separation_{i+1}', value=np.round(initial_separation[i-1],3), min=initial_separation[i-1]-2, max=initial_separation[i-1]+2)
         
         

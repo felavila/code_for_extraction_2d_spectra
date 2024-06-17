@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: spectral_extraction
+Name: spectral-extraction
 Version: 0.0.1
 Summary: LITTLE CODE TO EXTRACT MULTIPLE 1D ESPECTRA FROM ONE 2D
 Home-page: https://github.com/felavila/code_for_extraction_2d_spectra
@@ -15,10 +15,3 @@ Classifier: Programming Language :: Python :: 3.5
 Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: 3.10
 License-File: LICENSE
-Requires-Dist: astropy>=6.0
-Requires-Dist: numpy>=1.26.3
-Requires-Dist: lmfit>=1.2.2
-Requires-Dist: scipy>=1.11.4
-Requires-Dist: pandas>=2.2.0
-Requires-Dist: matplotlib>=3.8.2
-Requires-Dist: parallelbar>=2.4

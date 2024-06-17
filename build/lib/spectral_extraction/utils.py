@@ -5,6 +5,19 @@ from scipy import signal
 from scipy.ndimage import uniform_filter
 
 def find_signal(data):
+    """
+    Find the most prominent peak in the given data.
+
+    Parameters:
+    ----------
+    data : array-like
+        Input data array in which to find the signal.
+
+    Returns:
+    -------
+    int
+        The index of the most prominent peak in the data.
+    """
     data_copy = deepcopy(data)
     data_copy[data_copy<0] = 0
     #data_copy[data_copy>5*np.nanstd(data_copy)]= 0
@@ -29,6 +42,26 @@ def find_signal(data):
 
 
 def guess_picks_image(image,objects_guess=2,plot=False):
+    """
+    Guess the locations of peaks in a 2D image.
+
+    Parameters:
+    ----------
+    image : array-like
+        2D input image.
+    
+    objects_guess : int, optional, default=2
+        Number of peaks to guess.
+    
+    plot : bool, optional, default=False
+        Whether to plot the intermediate results.
+
+    Returns:
+    -------
+    array-like
+        Indices of the guessed peaks.
+    """
+    
     data = deepcopy(image)
     data[data<0] = 0
     if np.all(data==0):
@@ -59,13 +92,86 @@ def guess_picks_image(image,objects_guess=2,plot=False):
 
 
 def gaussian(x, center, height, sigma):
+    """
+    Gaussian distribution function.
+
+    Parameters:
+    ----------
+    x : array-like
+        Input array.
+    
+    center : float
+        Center of the Gaussian peak.
+    
+    height : float
+        Height of the Gaussian peak.
+    
+    sigma : float
+        Standard deviation of the Gaussian peak.
+
+    Returns:
+    -------
+    array-like
+        Gaussian distribution evaluated at x.
+    """
     return height * np.exp(-(x - center)**2 / (2 * sigma**2))
 
 
 def moffat(x,center,height,alpha,sigma):
+    """
+    Moffat distribution function.
+
+    Parameters:
+    ----------
+    x : array-like
+        Input array.
+    
+    center : float
+        Center of the Moffat peak.
+    
+    height : float
+        Height of the Moffat peak.
+    
+    alpha : float
+        Alpha parameter of the Moffat function.
+    
+    sigma : float
+        Sigma parameter of the Moffat function.
+
+    Returns:
+    -------
+    array-like
+        Moffat distribution evaluated at x.
+    """
+    
     return height*(1+((x-center)**2/(sigma**2)))**-alpha
 
 def smooth_boxcar(y, filtwidth,var=None, verbose=True):
+        """
+        Apply a boxcar smoothing to the spectrum.
+
+        Note: This function is not authored by me.
+
+        Parameters:
+        ----------
+        y : array-like
+            Input spectrum to be smoothed.
+        
+        filtwidth : int
+            Width of the smoothing filter.
+        
+        var : array-like or None, optional
+            Variance spectrum for inverse variance weighting. If None, uniform weighting is used.
+        
+        verbose : bool, optional, default=True
+            Whether to print verbose messages.
+
+        Returns:
+        -------
+        tuple
+            Smoothed spectrum and smoothed variance (or None if var is None).
+        """
+        
         """
         this is not mine 
         Does a boxcar smooth of the spectrum.

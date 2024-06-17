@@ -42,6 +42,9 @@ class spectra_2d:
             if len(self.fits_image[0].data.shape)==3:
                  self.full_data2d = self.fits_image[0].data[0]
                  self.full_data2d = np.nan_to_num(self.full_data2d,0)
+        else:
+            raise Exception("#####Check if is a fits file###")
+            
         # along the code in 2D array we will asume a [0] axis for spacial, and [1] for dispersion axis 
         
         if self.full_data2d.shape[1] < self.full_data2d.shape[0]:
