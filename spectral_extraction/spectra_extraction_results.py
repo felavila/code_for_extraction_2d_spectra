@@ -34,7 +34,7 @@ class spectral_extraction_results_handler:
         self.columns_distribtuion = ["center","height","sigma"] if self.distribution=="gaussian" else ["center","height","alpha","sigma"]       
         self.pandas_results,self.image_model = self.array_to_pandas()
         self.cleaned_panda = spectral_extraction_results_handler.clean_pandas(deepcopy(self.pandas_results),conditions=self.conditions)
-        self.residuals = np.abs(self.image-self.image_model)
+        self.residuals = self.image - self.image_model
         self.spectras1d_raw = {i:spectral_extraction_results_handler.interpolate_1d(self.pandas_results[i].values) for i in self.cleaned_panda.columns if "flux" in i}
         self.spectras1d = {i:spectral_extraction_results_handler.interpolate_1d(self.cleaned_panda[i].values) for i in self.cleaned_panda.columns if "flux" in i}
         self.cleaned_panda[[i for i in self.spectras1d.keys()]] = np.array(list(self.spectras1d.values())).T
@@ -172,14 +172,21 @@ class spectral_extraction_results_handler:
         return pandas_no_clean
     
     def plot_2d_image_residuals(self,save=None):
-       
-        model_result = {"original_image":self.image/self.image.max(axis=0),"model_image":self.image_model/self.image_model.max(axis=0),"residuals (abs(original-model))":self.residuals/self.residuals.max(axis=0)}
-        fig, axes = plt.subplots(1,3, figsize=(30, 5))
+        model_result = {"original_image":self.image/self.image.max(axis=0),"model_image":self.image_model/self.image_model.max(axis=0),"residuals original-model":self.residuals/np.max(np.abs(self.residuals),axis=0)}
+        fig, axes = plt.subplots(1,3, figsize=(50, 10))
         for ax, (key, spectra2d) in zip(axes, model_result.items()):
             vmin,vmax,label=0,1,"normalize"
-            ax.set_title(key)
-            im = ax.imshow(spectra2d,aspect="auto",vmin=0,vmax=1)
-            fig.colorbar(im, ax=ax, shrink=1,label=label)
+            ax.set_title(key, fontsize=30)
+            if key=="residuals original-model":
+                vmin,vmax,label=-1,1,"(image-model)/max"
+            im = ax.imshow(spectra2d,aspect="auto",vmin=vmin,vmax=vmax, cmap='coolwarm')
+            cbar = plt.colorbar(im, ax=ax, shrink=1)
+            ax.set_xlabel("Pixel",fontsize=20)
+            cbar.ax.tick_params(labelsize=20)
+            cbar.set_label(label, fontsize=20)
+            ax.tick_params(axis='both', which='major', labelsize=20)
+            #fig.colorbar(im, ax=ax, shrink=1,label=label, fontsize=14)
+
         plt.show()
     def plot_1d(self,n_pixel,save=None):
         parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in self.names for c in  self.columns_distribtuion]]
