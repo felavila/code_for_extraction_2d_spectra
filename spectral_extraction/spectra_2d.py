@@ -60,8 +60,12 @@ class spectra_2d:
         self.data2d = spectra_2d.cut_2d_image(self.full_data2d,center=self.center_cut,size=size_cut,verbose=self.verbose)
         self.stacked_median = np.nanmedian(self.data2d,axis=1)
         if isinstance(self.header,astropy.io.fits.header.Header):
-            self.relevant_keywords_header = {i:self.header[i] for i in ["ORIGIN","INSTRUME","OBJECT","NAXIS1","CRVAL1","CD1_1","CUNIT1"] if i in list(self.header.keys()) }
-    
+            self.relevant_keywords_header = {i:self.header[i] for i in ["ORIGIN","INSTRUME","OBJECT","NAXIS1","CRVAL1","CD1_1","CUNIT1","BUNIT"] if i in list(self.header.keys()) }
+            if "BUNIT" in self.relevant_keywords_header and self.relevant_keywords_header['INSTRUME'] == 'EFOSC': 
+                
+                factor = spectra_2d.convert_to_float(self.relevant_keywords_header["BUNIT"])
+                print(f"Corrected by factor={factor} BUNIT")
+                self.data2d = factor * self.data2d
     @staticmethod
     def cut_2d_image(image,center=None,size=None,verbose=False):
         """
@@ -120,3 +124,12 @@ class spectra_2d:
 
         # Show the plot
         plt.show()
+    @staticmethod
+    def convert_to_float(notation):
+        # Extract the exponent part after '10^(' and before ')'
+        exponent = notation.split('^(')[1].split(')')[0]
+        
+        # Convert to float using scientific notation
+        float_value = float(f"1e{exponent}")
+        
+        return float_value

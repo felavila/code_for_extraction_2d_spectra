@@ -10,7 +10,7 @@ import astropy.io
 from astropy.stats import sigma_clip
 
 class spectral_extraction_results_handler:
-    def __init__(self,spectral_extraction_results,conditions={"rsquared":0.7},header=None):
+    def __init__(self,spectral_extraction_results,conditions={"rsquared":0.7},header=None,names=None):
         """
         Initialize the spectral_extraction_results_handler class.
 
@@ -38,6 +38,7 @@ class spectral_extraction_results_handler:
         self.spectras1d_raw = {i:spectral_extraction_results_handler.interpolate_1d(self.pandas_results[i].values) for i in self.cleaned_panda.columns if "flux" in i}
         self.spectras1d = {i:spectral_extraction_results_handler.interpolate_1d(self.cleaned_panda[i].values) for i in self.cleaned_panda.columns if "flux" in i}
         self.cleaned_panda[[i for i in self.spectras1d.keys()]] = np.array(list(self.spectras1d.values())).T
+        self.names = np.arange(1,self.source_number+1).astype("str")
         if header:
             self.header=header
             if isinstance(self.header,astropy.io.fits.header.Header):
@@ -50,7 +51,22 @@ class spectral_extraction_results_handler:
                 self.cleaned_panda["wavelength"] = self.wavelength
         else:
             print("your results will not have wavelength try to define a header")
-    
+        if names:
+            self.set_names(names)
+
+    def set_names(self,names):
+        if len(names)==self.cleaned_panda.source_number.values[0]:
+            self.renames = {i:i.replace(i[-1],names[int(i[-1])-1]) for i in self.cleaned_panda.columns if i[-1] in np.arange(1,self.source_number+1).astype("str")}
+            self.cleaned_panda = self.cleaned_panda.rename(columns=self.renames)
+            self.names = names  
+        else:
+            print("check well your defined names and your number of objects in the sleet")
+    def unset_names(self):
+        if self.renames != None:
+            self.cleaned_panda = self.cleaned_panda.rename(columns={value:key for key,value in self.renames.items()})
+            self.names = np.arange(1,self.source_number+1).astype("str")
+        else:
+            print("you cant rename")
     def array_to_pandas(self):
         """
         Convert array results to pandas DataFrame.
@@ -166,14 +182,14 @@ class spectral_extraction_results_handler:
             fig.colorbar(im, ax=ax, shrink=1,label=label)
         plt.show()
     def plot_1d(self,n_pixel,save=None):
-        
-        parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in range(1,self.source_number+1) for c in  self.columns_distribtuion]]
+        parameters=self.cleaned_panda[self.cleaned_panda['n_pixel'].isin([n_pixel])][[f"value_{c}_{n}"  for n in self.names for c in  self.columns_distribtuion]]
         pixel_1d =self.image.T[n_pixel]
         x = np.linspace(0,len(pixel_1d),100)
         plt.plot(self.image.T[n_pixel],label="raw data")
         separated_sources = np.array([self.distribution_function(x,*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)])
         plt.plot(x,np.sum(separated_sources,axis=0),color="k",label="added models")
-        [plt.plot(x ,i, linestyle="--", linewidth=1.5,label=f"source {n+1}") for n,i in  enumerate(separated_sources)]
+        [plt.plot(x ,i, linestyle="--", linewidth=1.5,label=f"source {self.names[n]}") for n,i in  enumerate(separated_sources)]
+        
         plt.plot(np.arange(len(pixel_1d)),pixel_1d-np.sum(np.array([self.distribution_function(np.arange(len(pixel_1d)),*i) for i in parameters.values[0].reshape(self.source_number,self.parameter_number)]),axis=0),label="residuals",alpha=0.5)
         plt.title(f"pixel {n_pixel}")
         plt.legend()
