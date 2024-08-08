@@ -5,3 +5,4 @@ scipy>=1.11.4
 pandas>=2.2.0
 matplotlib>=3.8.2
 parallelbar>=2.4
+regions>=0.9

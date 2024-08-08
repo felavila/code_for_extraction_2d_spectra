@@ -7,6 +7,7 @@ notebooks/how_to_use_example_v0.ipynb
 notebooks/how_to_use_example_xshooter.ipynb
 notebooks/my_model_extraction.pickle
 spectral_extraction/__init__.py
+spectral_extraction/distances.py
 spectral_extraction/fitting.py
 spectral_extraction/function_maker.py
 spectral_extraction/ploting.py

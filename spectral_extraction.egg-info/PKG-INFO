@@ -8,12 +8,8 @@ Author-email: shudson@anl.gov
 License: MIT License
 Classifier: Development Status :: 1 - Planning
 Classifier: Intended Audience :: Science/Research
-Classifier: License :: OSI Approved :: BSD License
-Classifier: Operating System :: POSIX :: Linux
-Classifier: Programming Language :: Python :: 3.4
-Classifier: Programming Language :: Python :: 3.5
-Classifier: Programming Language :: Python :: 3.7
-Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: Other/Proprietary License
+Classifier: Programming Language :: Python
 License-File: LICENSE
 Requires-Dist: astropy>=6.0
 Requires-Dist: numpy>=1.26.3
@@ -22,3 +18,4 @@ Requires-Dist: scipy>=1.11.4
 Requires-Dist: pandas>=2.2.0
 Requires-Dist: matplotlib>=3.8.2
 Requires-Dist: parallelbar>=2.4
+Requires-Dist: regions>=0.9

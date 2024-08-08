@@ -11,4 +11,4 @@ To install, run the following command in your terminal:
 
 .. code-block:: bash
 
-    python setup.py install
+     pip install -e .
