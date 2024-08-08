@@ -8,7 +8,7 @@ from .utils import find_signal
 class spectra_2d:
     "Little class to handle 2D image of spectra"
     
-    def __init__(self,object,center_cut = None,size_cut=None,verbose=False):
+    def __init__(self,object,center_cut = None,size_cut=None,distances=None,verbose=False):
         """
         Initialize the spectra_2d class.
 
@@ -60,12 +60,17 @@ class spectra_2d:
         self.data2d = spectra_2d.cut_2d_image(self.full_data2d,center=self.center_cut,size=size_cut,verbose=self.verbose)
         self.stacked_median = np.nanmedian(self.data2d,axis=1)
         if isinstance(self.header,astropy.io.fits.header.Header):
-            self.relevant_keywords_header = {i:self.header[i] for i in ["ORIGIN","INSTRUME","OBJECT","NAXIS1","CRVAL1","CD1_1","CUNIT1","BUNIT"] if i in list(self.header.keys()) }
+            self.relevant_keywords_header = {i:self.header[i] for i in ["ORIGIN","INSTRUME","OBJECT","NAXIS1","CRVAL1","CD1_1","CUNIT1","BUNIT","CD2_2"] if i in list(self.header.keys()) }
             if "BUNIT" in self.relevant_keywords_header and self.relevant_keywords_header['INSTRUME'] == 'EFOSC': 
                 
                 factor = spectra_2d.convert_to_float(self.relevant_keywords_header["BUNIT"])
                 print(f"Corrected by factor={factor} BUNIT")
                 self.data2d = factor * self.data2d
+        if isinstance(distances,dict):
+            self.distances_arc = distances
+            if "CD2_2"  in self.relevant_keywords_header.keys():
+                self.distances_pix = {key:value/self.relevant_keywords_header["CD2_2"] for key,value in distances.items()}
+
     @staticmethod
     def cut_2d_image(image,center=None,size=None,verbose=False):
         """
